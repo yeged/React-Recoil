@@ -36,6 +36,7 @@ const RecoilTutorial = () => {
 
   return (
     <div>
+      <h1>Recoil Tutorial</h1>
       <input
         placeholder="Length"
         value={text}
