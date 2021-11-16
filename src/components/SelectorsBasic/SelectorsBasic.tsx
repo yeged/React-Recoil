@@ -6,7 +6,7 @@ import {
   useRecoilValue,
 } from 'recoil';
 
-const exchangeRate = 0.097;
+const exchangeRate = 0.097397644;
 
 const tryState = atom<number>({
   key: 'tryState',
@@ -19,11 +19,15 @@ const usdSelector = selector<number>({
     const lira = get(tryState);
     return lira * exchangeRate;
   },
+  set: ({ set }, newUsdValue) => {
+    let newTrValue = +newUsdValue / exchangeRate;
+    set(tryState, newTrValue);
+  },
 });
 
 const SelectorsBasic = () => {
   const [lira, setLira] = useRecoilState(tryState);
-  const usd = useRecoilValue(usdSelector);
+  const [usd, setUSD] = useRecoilState(usdSelector);
 
   return (
     <div>
@@ -33,12 +37,16 @@ const SelectorsBasic = () => {
           id="tr"
           placeholder="₺"
           value={lira}
-          onChange={(e) => setLira(parseFloat(e.target.value))}
+          onChange={(e) => setLira(+e.target.value)}
         />
         <label htmlFor="tr">₺</label>
       </div>
       <div>
-        <input placeholder="$" value={usd} />
+        <input
+          placeholder="$"
+          value={usd}
+          onChange={(e) => setUSD(+e.target.value)}
+        />
         <label htmlFor="usd">$</label>
       </div>
     </div>
