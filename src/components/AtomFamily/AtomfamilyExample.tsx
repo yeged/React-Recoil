@@ -1,6 +1,7 @@
 import {
   atom,
   atomFamily,
+  selector,
   useRecoilState,
   useRecoilValue,
   useSetRecoilState,
@@ -20,9 +21,31 @@ const colorIdState = atom<colorObject[]>({
   ],
 });
 
+//3 square color state atom created -- squareColorState(1)...(2)...(3)
 const squareColorState = atomFamily<string, number>({
   key: 'squareColorState',
   default: '',
+});
+
+const selecterColorIdState = atom<number | null>({
+  key: 'selectedColorIdState',
+  default: null,
+});
+
+const selectedSquareColor = selector<string | undefined>({
+  key: 'selectedSquareColor',
+  get: ({ get }) => {
+    const selectedColorId = get(selecterColorIdState);
+    if (!selectedColorId) return;
+    return get(squareColorState(selectedColorId));
+  },
+  set: ({ set, get }, newValue) => {
+    if (!newValue) return;
+    const selectedColorId = get(selecterColorIdState);
+    if (!selectedColorId) return;
+    set(squareColorState(selectedColorId), newValue);
+    console.log(squareColorState(selectedColorId));
+  },
 });
 
 const Square = ({ colorId }: { colorId: number }) => {
@@ -47,25 +70,42 @@ const Button = ({
   colorId: number;
 }) => {
   const setColor = useSetRecoilState(squareColorState(colorId));
+  const setColorId = useSetRecoilState(selecterColorIdState);
+
+  const onColorChange = () => {
+    setColor(colorName);
+    setColorId(colorId);
+  };
+
   return (
     <div>
-      <button onClick={() => setColor(colorName)}>{colorName}</button>
+      <button onClick={onColorChange}>{colorName}</button>
     </div>
   );
 };
 
 const AtomfamilyExample = () => {
   const list = useRecoilValue(colorIdState);
+  const [selectedColor, setSelectedColor] = useRecoilState(
+    selectedSquareColor,
+  );
   return (
-    <div style={{ display: 'flex' }}>
-      {list.map(({ id, color }) => {
-        return (
-          <div>
-            <Square colorId={id} />
-            <Button colorId={id} colorName={color} />
-          </div>
-        );
-      })}
+    <div>
+      <input
+        placeholder="Color"
+        value={selectedColor}
+        onChange={(e) => setSelectedColor(e.target.value)}
+      />
+      <div style={{ display: 'flex', marginTop: '5px' }}>
+        {list.map(({ id, color }) => {
+          return (
+            <div>
+              <Square colorId={id} />
+              <Button colorId={id} colorName={color} />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
