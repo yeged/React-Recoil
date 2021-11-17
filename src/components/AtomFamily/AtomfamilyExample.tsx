@@ -6,19 +6,23 @@ import {
   useSetRecoilState,
 } from 'recoil';
 
-const colorsListState = atom<string[]>({
-  key: 'colorsListState',
-  default: ['blue', 'red', 'green'],
+interface colorObject {
+  id: number;
+  color: string;
+}
+
+const colorIdState = atom<colorObject[]>({
+  key: 'colorIdState',
+  default: [
+    { id: 1, color: 'red' },
+    { id: 2, color: 'blue' },
+    { id: 3, color: 'green' },
+  ],
 });
 
 const squareColorState = atomFamily<string, number>({
   key: 'squareColorState',
   default: '',
-});
-
-const colorIdState = atomFamily({
-  key: 'colorIdState',
-  default: [],
 });
 
 const Square = ({ colorId }: { colorId: number }) => {
@@ -51,14 +55,14 @@ const Button = ({
 };
 
 const AtomfamilyExample = () => {
-  const list = useRecoilValue(colorsListState);
+  const list = useRecoilValue(colorIdState);
   return (
     <div style={{ display: 'flex' }}>
-      {list.map((value, index) => {
+      {list.map(({ id, color }) => {
         return (
           <div>
-            <Square colorId={index} />
-            <Button colorId={index} colorName={value} />
+            <Square colorId={id} />
+            <Button colorId={id} colorName={color} />
           </div>
         );
       })}
