@@ -1,46 +1,173 @@
-# Getting Started with Create React App
+# Recoil Js
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- Resources
+- Install
+- Atom Basics
+- Selector Basics
+  - get, set, *reset
+- Hooks
+  * useRecoilState
+  * useRecoilValue
+  * *useSetRecoilState
+  * *Others?
+* *Atom family 
+* *Selector family
+* *Async Selector
+ * *Data Fethcing Basics
+ * *Data Fetching Advance
+* *Patterns?
+* *Atom Effects
+## Resources
+[Recoil JS](https://recoiljs.org/docs/introduction/getting-started/)
+## Installation
+`
+npm install recoil
+`
+````
+import { RecoilRoot, atom, selector, useRecoilState, useRecoilValue } from 'recoil';
+````
 
-## Available Scripts
+## Atom Basics & useRecoilState - useRecoilValue
 
-In the project directory, you can run:
+[Atom](https://recoiljs.org/docs/api-reference/core/atom) | 
+[useRecoilState](https://recoiljs.org/docs/api-reference/core/useRecoilState) |
+[useRecoilValue](https://recoiljs.org/docs/api-reference/core/useRecoilValue)
 
-### `npm start`
+**Atom:** key is unique.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+**useRecoilState:** Read and write.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+**useRecoilValue:** Read only.
 
-### `npm test`
+<table>
+<tr>
+<th>Atom State</th>
+<th>useRecoilState</th>
+<th>useRecoilValue</th>
+</tr>
+<tr>
+ <td>
+   
+````
+const darkModeState = atom<boolean>({
+  key: 'darkModeState',
+  default: false,
+});
+````
+   
+</td>
+    <td>
+   
+````
+const Button: React.FC = () => {
+  const [isDark, setIsDark] = useRecoilState(darkModeState);
+      return...
+  }
+````
+   
+</td>
+<td>
+   
+````
+const Header: React.FC = () => {
+  const darkMode = useRecoilValue(darkModeState);
+  return...
+  }
+````
+   
+</td>
+</table>
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Selectors Basics (Get - Set)
 
-### `npm run build`
+[Selector](https://recoiljs.org/docs/api-reference/core/selector)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**useRecoilValue:** this hook works with both read-only state and writeable state. Atoms are writeable state while selectors may be either read-only or writeable.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**In Selector:**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+only get: useRecoilValue
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+get and set: useRecoilState
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+<table>
+<tr>
+<th>Atom State</th>
+</tr>
+<tr>
+ <td>
+   
+````
+const tryState = atom<number>({
+  key: 'tryState',
+  default: 1,
+});
+````
+   
+</td>
+</table>
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+<table>
+<tr>
+<th>Get</th>
+<th>Set</th>
+<th>Output</th>
+</tr>
+<tr>
+ <td>
+   
+````
+//Only changes tryState.
+const usdSelector = selector<number>({
+  key: 'usdSelector',
+  get: ({ get }) => {
+    let lira = get(tryState);
+    return lira * exchangeRate;
+  }
+});
+````
+</td>
+   
+<td>
+   
+````
+//the selector will return writeable state.
+const usdSelector = selector<number>({
+  key: 'usdSelector',
+  get: ({ get }) => {
+    let lira = get(tryState);
+    return lira * exchangeRate;
+  },
+  set: ({ set, get }, newUsdValue) => {
+    let newTrValue = +newUsdValue / exchangeRate;
+    set(tryState, newTrValue);
+  },
+});
+````
+  </td>
+  
+<td>
+   
+````
+const SelectorsBasic = () => {
+  const [lira, setLira] = useRecoilState(tryState);
+  const [usd, setUSD] = useRecoilState(usdSelector);
+  return (
+    <div>
+        <input
+          placeholder="₺"
+          value={lira}
+          onChange={(e) => setLira(+e.target.value)}
+        />
+        <input
+          placeholder="$"
+          value={usd}
+          onChange={(e) => setUSD(+e.target.value)}
+        />
+     </div>
+    )}
+  //Output: 1₺ = 0.097$
+````
+  </td>
+  </table>
