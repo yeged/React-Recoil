@@ -82,6 +82,15 @@ const Header: React.FC = () => {
 
 [Selector](https://recoiljs.org/docs/api-reference/core/selector)
 
+**useRecoilValue:** this hook works with both read-only state and writeable state. Atoms are writeable state while selectors may be either read-only or writeable.
+
+**In Selector:**
+
+
+only get: useRecoilValue
+
+get and set: useRecoilState
+
 <table>
 <tr>
 <th>Atom State</th>
@@ -143,13 +152,18 @@ const usdSelector = selector<number>({
 ````
 const SelectorsBasic = () => {
   const [lira, setLira] = useRecoilState(tryState);
+  const [usd, setUSD] = useRecoilState(usdSelector);
   return (
     <div>
-      <h1>Currency Converter</h1>
         <input
           placeholder="₺"
           value={lira}
           onChange={(e) => setLira(+e.target.value)}
+        />
+        <input
+          placeholder="$"
+          value={usd}
+          onChange={(e) => setUSD(+e.target.value)}
         />
      </div>
     )}
