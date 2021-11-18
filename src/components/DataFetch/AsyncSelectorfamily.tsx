@@ -1,12 +1,19 @@
 import { Suspense, useState } from 'react';
 import {
   atom,
+  atomFamily,
   selector,
   selectorFamily,
   useRecoilState,
   useRecoilValue,
+  useSetRecoilState,
 } from 'recoil';
 import { getWeather } from './fakeApi';
+
+const weatherFetchIdState = atomFamily<number, number>({
+  key: 'weatherFetchIdState',
+  default: 0,
+});
 
 const userStateFamily = selectorFamily({
   key: 'userStateFamily',
@@ -23,11 +30,17 @@ const weatherState = selectorFamily({
   get:
     (id: number) =>
     async ({ get }) => {
+      get(weatherFetchIdState(id));
       const user = get(userStateFamily(id));
 
       return await getWeather(user.address.city);
     },
 });
+
+const useRefreshWeather = (userId: number) => {
+  const setFetchId = useSetRecoilState(weatherFetchIdState(userId));
+  return () => setFetchId((id) => id + 1);
+};
 
 const Weather = ({ userId }: { userId: number }) => {
   const user = useRecoilValue(userStateFamily(userId));
@@ -38,6 +51,9 @@ const Weather = ({ userId }: { userId: number }) => {
       <p>
         Weather in {user.address.city}:{weather}
       </p>
+      <button onClick={useRefreshWeather(userId)}>
+        Refresh Weather
+      </button>
     </div>
   );
 };
