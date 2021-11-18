@@ -6,6 +6,7 @@ import {
   useRecoilState,
   useRecoilValue,
 } from 'recoil';
+import { getWeather } from './fakeApi';
 
 const userStateFamily = selectorFamily({
   key: 'userStateFamily',
@@ -13,10 +14,33 @@ const userStateFamily = selectorFamily({
     const data = fetch(
       `https://jsonplaceholder.typicode.com/users/${id}`,
     ).then((res) => res.json());
-
     return data;
   },
 });
+
+const weatherState = selectorFamily({
+  key: 'weatherState',
+  get:
+    (id: number) =>
+    async ({ get }) => {
+      const user = get(userStateFamily(id));
+
+      return await getWeather(user.address.city);
+    },
+});
+
+const Weather = ({ userId }: { userId: number }) => {
+  const user = useRecoilValue(userStateFamily(userId));
+  const weather = useRecoilValue(weatherState(userId));
+
+  return (
+    <div>
+      <p>
+        Weather in {user.address.city}:{weather}
+      </p>
+    </div>
+  );
+};
 
 const UserData = ({ userId }: { userId: number }) => {
   const user = useRecoilValue(userStateFamily(userId));
@@ -25,6 +49,9 @@ const UserData = ({ userId }: { userId: number }) => {
     <div>
       <h3>{user.name}</h3>
       <p>{user.phone}</p>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Weather userId={userId} />
+      </Suspense>
     </div>
   );
 };
@@ -41,6 +68,7 @@ const AsyncSelectorFamily = () => {
         onChange={(e) => setUserId(+e.target.value)}
         onBlur={(e) => setUserId(+e.target.value)}
       >
+        <option value="undefined">Choose a user</option>
         <option value="1">User 1</option>
         <option value="2">User 2</option>
         <option value="3">User 3</option>
