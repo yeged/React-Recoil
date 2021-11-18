@@ -27,7 +27,7 @@ const squareColorState = atomFamily<string, number>({
   default: '',
 });
 
-const selecterColorIdState = atom<number | null>({
+const selectedColorIdState = atom<number | null>({
   key: 'selectedColorIdState',
   default: null,
 });
@@ -35,13 +35,13 @@ const selecterColorIdState = atom<number | null>({
 const selectedSquareColor = selector<string | undefined>({
   key: 'selectedSquareColor',
   get: ({ get }) => {
-    const selectedColorId = get(selecterColorIdState);
+    const selectedColorId = get(selectedColorIdState);
     if (!selectedColorId) return;
     return get(squareColorState(selectedColorId));
   },
   set: ({ set, get }, newValue) => {
     if (!newValue) return;
-    const selectedColorId = get(selecterColorIdState);
+    const selectedColorId = get(selectedColorIdState);
     if (!selectedColorId) return;
     set(squareColorState(selectedColorId), newValue);
     console.log(squareColorState(selectedColorId));
@@ -70,7 +70,7 @@ const Button = ({
   colorId: number;
 }) => {
   const setColor = useSetRecoilState(squareColorState(colorId));
-  const setColorId = useSetRecoilState(selecterColorIdState);
+  const setColorId = useSetRecoilState(selectedColorIdState);
 
   const onColorChange = () => {
     setColor(colorName);
@@ -91,6 +91,7 @@ const AtomfamilyExample = () => {
   );
   return (
     <div>
+      <h1>AtomFamily Example</h1>
       <input
         placeholder="Color"
         value={selectedColor}
