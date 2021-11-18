@@ -38,7 +38,7 @@ const changeColor = selectorFamily<string | undefined, number>({
     },
   set:
     (id) =>
-    ({ set, get }, newValue) => {
+    ({ set }, newValue) => {
       if (!newValue) {
         newValue = '';
       }
