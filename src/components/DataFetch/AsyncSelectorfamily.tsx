@@ -30,9 +30,9 @@ const weatherState = selectorFamily({
   get:
     (id: number) =>
     async ({ get }) => {
+      if (!id) return;
       get(weatherFetchIdState(id));
       const user = get(userStateFamily(id));
-
       return await getWeather(user.address.city);
     },
 });
@@ -45,15 +45,15 @@ const useRefreshWeather = (userId: number) => {
 const Weather = ({ userId }: { userId: number }) => {
   const user = useRecoilValue(userStateFamily(userId));
   const weather = useRecoilValue(weatherState(userId));
-
+  const refresh = useRefreshWeather(userId);
+  if (!userId) return null;
   return (
     <div>
       <p>
         Weather in {user.address.city}:{weather}
       </p>
-      <button onClick={useRefreshWeather(userId)}>
-        Refresh Weather
-      </button>
+
+      <button onClick={refresh}>Refresh Weather</button>
     </div>
   );
 };
@@ -65,9 +65,11 @@ const UserData = ({ userId }: { userId: number }) => {
     <div>
       <h3>{user.name}</h3>
       <p>{user.phone}</p>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Weather userId={userId} />
-      </Suspense>
+      {userId !== undefined && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <Weather userId={userId} />
+        </Suspense>
+      )}
     </div>
   );
 };
