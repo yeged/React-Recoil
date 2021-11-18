@@ -13,12 +13,14 @@
 * Atom family 
 * Selector family
 * Async Selector
- * Data Fethcing Basics
- * Data Fetching Advance
+  * Data Fethcing Basics
+  * Data Fetching Advance
 * *Patterns?
 * *Atom Effects
 ## Resources
-[Recoil JS](https://recoiljs.org/docs/introduction/getting-started/)
+* [Recoil JS](https://recoiljs.org/docs/introduction/getting-started/)
+* [Learn Recoil](https://learnrecoil.com/)
+* [Learn Recoil Github](https://github.com/jacques-blom/recoil-course)
 ## Installation
 `
 npm install recoil
